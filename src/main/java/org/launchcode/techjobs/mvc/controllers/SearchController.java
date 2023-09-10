@@ -28,18 +28,27 @@ public class SearchController {
     }
 
     // TODO #3 - Create a handler to process a search request and render the updated search view.
-    @PostMapping("results")
-    public String displaySearchResults(Model model, @RequestParam  String searchType, @RequestParam String searchTerm) {
-        ArrayList<Job> jobs;
-        if (searchTerm.equals("all") || searchTerm.isEmpty()) {
-            jobs = JobData.findAll();
-            model.addAttribute("title", "All Jobs");
+
+    //  Task 3: Complete SearchController - I used a lot of the same code/ideas from listJobsByColumnAndValue() method in the ListController.java file.
+    @PostMapping(value = "results")  // the path from which the info is coming, found in <form> tag in search.html
+    public String displaySearchResults(Model model, @RequestParam String searchType, @RequestParam String searchTerm) {
+        ArrayList<Job> jobs;    // create an ArrayList of jobs of type Job.
+
+        if (searchTerm.equals("all") || searchTerm.equals("")) {      // if 'all' or 'empty string' is entered in search box, then do this...
+//        if (Objects.equals(searchTerm, "all") || Objects.equals(searchTerm, "")) {    // Is this better than line above? Both work.
+            jobs = JobData.findAll();   // find/return all jobData info.
+            model.addAttribute("title", "All Jobs: " + searchTerm);  // create a 'title' Model attribute
         } else {
-            jobs =  JobData.findByColumnAndValue(searchType,searchTerm);
+            jobs = JobData.findByColumnAndValue(searchType, searchTerm);    // if not 'all' or 'empty string' then do this alt method search...
+            model.addAttribute("title", "Jobs with " + columnChoices.get(searchType) + ": " + searchTerm);  // create alt 'title' Model attribute
         }
 
-        model.addAttribute("columns", columnChoices);
-        model.addAttribute("jobs",jobs);
+        model.addAttribute("columns", columnChoices);   // Create 'columns' attribute for use in search.html <span> tage column : columns.
+        model.addAttribute("jobs", jobs);   // Create 'jobs' attribute to use in search.html to print job info.
+
+//  BONUS 1a/1b: Needed to add model attributes here in order to reference these in the search.html template to keep search fields populated with most recent entries.  //
+        model.addAttribute("searchType", searchType);  // Needed for Bonus 1a - keeping search fields populated (check box).
+        model.addAttribute("searchTerm", searchTerm);  // Needed for Bonus 1b - keeping search fields populated (keyword entry).
 
         return "search";
     }
